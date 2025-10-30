@@ -1,0 +1,1 @@
+# Software de Análisis Financiero

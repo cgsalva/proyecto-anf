@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="{% url 'dashboard' %}">
+                <strong style="margin-left: 5px;">Finanzas</strong>
+            </a>
+
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div id="navbarBasic" class="navbar-menu">
+            <!-- Sección izquierda del menú -->
+            <div class="navbar-start">
+                <a class="navbar-item" href="#">Balance General</a>
+                <a class="navbar-item" href="#">Estado de Resultados</a>
+            </div>
+            <!-- Sección derecha del menú -->
+            <div class="navbar-end">
+            {% if user.is_authenticated %}
+                <div class="navbar-item">
+                Hola, {{ user.username }}
+                </div>
+                <a class="navbar-item" href="{% url 'logout' %}">Cerrar sesión</a>
+            {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido -->
+    <section class="section">
+        <div class="container">
+        {% block content %}
+        {% endblock %}
+        </div>
+    </section>
+
+    <!-- Script para el menú hamburguesa -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const burger = document.querySelector('.navbar-burger');
+        const menu = document.querySelector('.navbar-menu');
+        if (burger && menu) {
+        burger.addEventListener('click', () => {
+            burger.classList.toggle('is-active');
+            menu.classList.toggle('is-active');
+        });
+        }
+    });
+    </script>
+</body>
+</html>
