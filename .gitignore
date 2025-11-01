@@ -1,9 +1,7 @@
 # 1. Entorno Virtual
-# Ignora la carpeta del entorno virtual que vi en tu captura
 venv/
 
 # 2. Base de datos local
-# Nunca subas tu base de datos de desarrollo (vi que usas sqlite)
 db.sqlite3
 *.sqlite3
 
