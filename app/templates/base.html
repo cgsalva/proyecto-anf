@@ -1,63 +1,58 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <meta charset="UTF-8">
+  <title>Analizador Financiero - {{ empresa_nombre|default:"CrediQ" }}</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+           margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
+    nav { background-color: #004a99; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;}
+    nav a { color: white; text-decoration: none; font-weight: bold; padding: 15px; }
+    nav a:hover { background-color: #003366; }
+    .container { max-width: 1400px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    h1 { color: #004a99; }
+    h2 { border-bottom: 2px solid #004a99; padding-bottom: 10px; color: #004a99; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 0.95em; }
+    th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; }
+    th { background-color: #f0f5fb; color: #004a99; }
+    tbody tr:nth-child(even) { background-color: #f9f9f9; }
+    td.numero { text-align: right; }
+    .positivo { color: #008000; }
+    .negativo { color: #d90000; }
+    .messages { list-style: none; padding: 0; margin-bottom: 20px; }
+    .messages li { padding: 15px; border-radius: 5px; margin-bottom: 10px; }
+    .messages li.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .messages li.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
 </head>
 <body>
-    <!-- Barra de navegación -->
-    <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="{% url 'dashboard' %}">
-                <strong style="margin-left: 5px;">Finanzas</strong>
-            </a>
+  <nav>
+    <div>
+      <a href="{% url 'dashboard' %}">Dashboard de Análisis</a>
+      <a href="{% url 'upload_data' %}">Cargar/Actualizar Datos</a>
+    </div>
+    <div>
+      {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}">Salir ({{ user.username }})</a>
+      {% endif %}
+    </div>
+  </nav>
 
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-        </div>
+  <div class="container">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
-        <div id="navbarBasic" class="navbar-menu">
-            <!-- Sección izquierda del menú -->
-            <div class="navbar-start">
-                <a class="navbar-item" href="#">Balance General</a>
-                <a class="navbar-item" href="#">Estado de Resultados</a>
-            </div>
-            <!-- Sección derecha del menú -->
-            <div class="navbar-end">
-            {% if user.is_authenticated %}
-                <div class="navbar-item">
-                Hola, {{ user.username }}
-                </div>
-                <a class="navbar-item" href="{% url 'logout' %}">Cerrar sesión</a>
-            {% endif %}
-            </div>
-        </div>
-    </nav>
-
-    <!-- Contenido -->
-    <section class="section">
-        <div class="container">
-        {% block content %}
-        {% endblock %}
-        </div>
-    </section>
-
-    <!-- Script para el menú hamburguesa -->
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const burger = document.querySelector('.navbar-burger');
-        const menu = document.querySelector('.navbar-menu');
-        if (burger && menu) {
-        burger.addEventListener('click', () => {
-            burger.classList.toggle('is-active');
-            menu.classList.toggle('is-active');
-        });
-        }
-    });
-    </script>
+    {% block content %}{% endblock %}
+  </div>
 </body>
 </html>

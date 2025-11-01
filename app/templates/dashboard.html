@@ -1,9 +1,316 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio{% endblock %}
-
 {% block content %}
-<h1>Dashboard</h1>
-<p>Bienvenido, {{ user.username }}.</p>
-<p><a href="{% url 'logout' %}">Cerrar sesión</a></p>
+  <h1>Dashboard de Análisis: {{ empresa_nombre }}</h1>
+
+  <h2>Ratios Financieros Clave</h2>
+  
+  <h3>Ratios de Liquidez</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Ratio</th>
+        {% for ano in ratios.liquidez.anos %}
+          <th>{{ ano }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Razón Corriente</td>
+        {% for val in ratios.liquidez.razon_corriente %}
+          <td class="numero">{{ val|floatformat:2 }}</td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <td>Prueba Ácida</td>
+        {% for val in ratios.liquidez.prueba_acida %}
+          <td class="numero">{{ val|floatformat:2 }}</td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Ratios de Endeudamiento</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Ratio</th>
+        {% for ano in ratios.endeudamiento.anos %}
+          <th>{{ ano }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Razón de Endeudamiento</td>
+        {% for val in ratios.endeudamiento.endeudamiento %}
+          <td class="numero">{{ val|floatformat:2 }}%</td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <td>Apalancamiento (Pasivo/Patrim.)</td>
+        {% for val in ratios.endeudamiento.apalancamiento %}
+          <td class="numero">{{ val|floatformat:2 }}</td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Ratios de Rentabilidad</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Ratio</th>
+        {% for ano in ratios.rentabilidad.anos %}
+          <th>{{ ano }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Margen Neto</td>
+        {% for val in ratios.rentabilidad.margen_neto %}
+          <td class="numero">{{ val|floatformat:2 }}%</td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <td>ROA (Retorno s/ Activos)</td>
+        {% for val in ratios.rentabilidad.roa %}
+          <td class="numero">{{ val|floatformat:2 }}%</td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <td>ROE (Retorno s/ Patrimonio)</td>
+        {% for val in ratios.rentabilidad.roe %}
+          <td class="numero">{{ val|floatformat:2 }}%</td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="width: 80%; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <canvas id="graficaRentabilidad"></canvas>
+  </div>
+
+
+  <h2>Análisis Vertical (Base 100)</h2>
+  
+  <h3>Balance General (Base = Total Activo)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Cuenta</th>
+        {% for ano in vertical_balance.anos %}
+          <th>{{ ano }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for cuenta, valores in vertical_balance.cuentas.items %}
+      <tr>
+        <td>{{ cuenta }}</td>
+        {% for val in valores %}
+          <td class="numero">{{ val|floatformat:2 }}%</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3>Estado de Resultados (Base = Total Ingresos)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Cuenta</th>
+        {% for ano in vertical_resultados.anos %}
+          <th>{{ ano }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for cuenta, valores in vertical_resultados.cuentas.items %}
+      <tr>
+        <td>{{ cuenta }}</td>
+        {% for val in valores %}
+          <td class="numero">{{ val|floatformat:2 }}%</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Análisis Horizontal (Año vs Año)</h2>
+
+  <h3>Balance General</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Cuenta</th>
+        {% for periodo in horizontal_balance.periodos %}
+          <th colspan="2">{{ periodo }}</th>
+        {% endfor %}
+      </tr>
+      <tr>
+        <th></th>
+        {% for periodo in horizontal_balance.periodos %}
+          <th>Var. $</th>
+          <th>Var. %</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for cuenta, periodos in horizontal_balance.cuentas.items %}
+      <tr>
+        <td>{{ cuenta }}</td>
+        {% for p in periodos %}
+          <td class="numero {% if p.abs > 0 %}positivo{% elif p.abs < 0 %}negativo{% endif %}">
+            ${{ p.abs|floatformat:0 }} </td>
+          <td class="numero {% if p.rel > 0 %}positivo{% elif p.rel < 0 %}negativo{% endif %}">
+            {{ p.rel|floatformat:2 }}%
+          </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3>Estado de Resultados</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Cuenta</th>
+        {% for periodo in horizontal_resultados.periodos %}
+          <th colspan="2">{{ periodo }}</th>
+        {% endfor %}
+      </tr>
+      <tr>
+        <th></th>
+        {% for periodo in horizontal_resultados.periodos %}
+          <th>Var. $</th>
+          <th>Var. %</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for cuenta, periodos in horizontal_resultados.cuentas.items %}
+      <tr>
+        <td>{{ cuenta }}</td>
+        {% for p in periodos %}
+          <td class="numero {% if p.abs > 0 %}positivo{% elif p.abs < 0 %}negativo{% endif %}">
+            ${{ p.abs|floatformat:0 }} </td>
+          <td class="numero {% if p.rel > 0 %}positivo{% elif p.rel < 0 %}negativo{% endif %}">
+            {{ p.rel|floatformat:2 }}%
+          </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Estado de Orígenes y Usos de Fondos</h2>
+  
+  {% for periodo_data in fuentes_usos %}
+  <h3>{{ periodo_data.periodo_nombre }}</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Concepto</th>
+        <th>Variación ($)</th>
+        <th>Fuente (Origen)</th>
+        <th>Uso (Aplicación)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in periodo_data.cuentas %}
+      <tr>
+        <td>{{ item.cuenta }}</td>
+        <td class="numero {% if item.var > 0 %}positivo{% elif item.var < 0 %}negativo{% endif %}">
+          ${{ item.var|floatformat:0 }} </td>
+        <td class="numero positivo">
+          {% if item.fuente > 0 %}${{ item.fuente|floatformat:0 }}{% endif %} </td>
+        <td class="numero negativo">
+          {% if item.uso > 0 %}${{ item.uso|floatformat:0 }}{% endif %} </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr style="font-weight: bold; background-color: #f0f5fb;">
+        <td colspan="2">TOTALES</td>
+        <td class="numero positivo">${{ periodo_data.total_fuentes|floatformat:0 }}</td> <td class="numero negativo">${{ periodo_data.total_usos|floatformat:0 }}</td> </tr>
+    </tfoot>
+  </table>
+  {% endfor %}
+
+
+  <script>
+    // --- GRÁFICA 1: RENTABILIDAD ---
+    
+    // 1. Obtenemos los datos que Django nos pasó (los convierte de Python a JSON)
+    // Usamos '|| []' como respaldo por si los datos están vacíos
+    const anosRentabilidad = {{ ratios.rentabilidad.anos|safe|default:"[]" }};
+    const roeData = {{ ratios.rentabilidad.roe|safe|default:"[]" }};
+    const roaData = {{ ratios.rentabilidad.roa|safe|default:"[]" }};
+    const margenData = {{ ratios.rentabilidad.margen_neto|safe|default:"[]" }};
+
+    // 2. Buscamos el lienzo (canvas) que creamos arriba
+    const ctxRentabilidad = document.getElementById('graficaRentabilidad');
+
+    // 3. Creamos la nueva gráfica
+    new Chart(ctxRentabilidad, {
+      type: 'line', // Tipo de gráfica (líneas)
+      data: {
+        labels: anosRentabilidad, // Eje X (Años: [2017, 2018, ...])
+        datasets: [
+          {
+            label: 'ROE (Retorno s/ Patrimonio) %',
+            data: roeData, // Eje Y (Datos: [13.41, 12.18, ...])
+            borderColor: '#004a99', // Color de la línea (azul)
+            tension: 0.1 // Curvatura de la línea
+          },
+          {
+            label: 'ROA (Retorno s/ Activos) %',
+            data: roaData,
+            borderColor: '#009933', // Color (verde)
+            tension: 0.1
+          },
+          {
+            label: 'Margen Neto %',
+            data: margenData,
+            borderColor: '#ff9900', // Color (naranja)
+            tension: 0.1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Evolución de la Rentabilidad (ROE, ROA, Margen Neto)',
+            font: { size: 18 }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                // Añade el '%' al tooltip
+                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            ticks: {
+              // Añade el '%' al eje Y
+              callback: function(value) {
+                return value.toFixed(1) + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+
 {% endblock %}

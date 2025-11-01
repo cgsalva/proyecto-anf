@@ -1,2 +1,32 @@
-venv
-__pycache__
+# 1. Entorno Virtual
+# Ignora la carpeta del entorno virtual que vi en tu captura
+venv/
+
+# 2. Base de datos local
+# Nunca subas tu base de datos de desarrollo (vi que usas sqlite)
+db.sqlite3
+*.sqlite3
+
+# 3. Archivos de Python
+# Ignora las carpetas de caché y archivos compilados de Python
+__pycache__/
+*.pyc
+
+# 4. Archivos del Editor (VS Code)
+# Ignora la configuración local de tu editor
+.vscode/
+
+# 5. Archivos sensibles (¡Importante!)
+# Si usas un archivo .env para tus contraseñas y SECRET_KEY
+.env
+.env.*
+
+# 6. Archivos estáticos y de medios de Django
+# Ignora la carpeta donde Django 'collectstatic' agrupa los archivos
+staticfiles/
+# Ignora la carpeta donde los usuarios suben archivos
+media/
+
+# 7. Archivos de Sistema Operativo
+.DS_Store
+Thumbs.db

@@ -1,9 +1,11 @@
+# app/urls.py
 from django.urls import path
-from django.contrib.auth import views as auth_views
-from . import views
+from . import views  # <-- ¡ESTA ES LA LÍNEA CORRECTA!
 
 urlpatterns = [
-    path('login/', views.login_view, name="login"),
-    path('logout/', views.logout_view, name='logout'),
+    # Ruta del Dashboard (la página principal de la app)
     path('', views.dashboard, name='dashboard'),
+    
+    # Ruta para subir los archivos CSV
+    path('cargar/', views.upload_data, name='upload_data'),
 ]

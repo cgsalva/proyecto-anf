@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Cargar Nuevos Datos Financieros</h2>
+<p>
+  Sube los archivos CSV consolidados (BalanceData y ResultadosData).
+  Esto eliminará todos los datos anteriores y los reemplazará con los nuevos.
+</p>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %} 
+  
+  <table style="width: auto;">
+    {{ form.as_table }}
+  </table>
+  <br>
+  <button type="submit" style="padding: 10px 20px; background-color: #004a99; color: white; border: none; border-radius: 5px; cursor: pointer;">
+    Cargar y Analizar Datos
+  </button>
+</form>
+{% endblock %}
